@@ -48,28 +48,25 @@ public class PositionalFileReader {
     private Map<Class<?>, List<RecordLayout>> readRecords(final Reader reader,
                                                           final Class<? extends RecordLayout>... recordClasses) {
 
-
         final List<RecordLayout> allRecordLayouts = new ArrayList<>();
         try (final BufferedReader bufferedReader = new BufferedReader(reader)) {
-
             Class<? extends RecordLayout> currentLayout = recordClasses[0];
             String currentDelimiter = getDelimiterValue(recordClasses[0]);
             Matcher currentMatcher = getDelimiterMatcher(recordClasses[0]);
             String record;
 
             while ((record = bufferedReader.readLine()) != null) {
-                boolean isDelimiterNotReached = matcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
+                boolean isMatchedDelimiter = matcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
                 for (int i = 0; i < recordClasses.length; i++) {
                     if (currentLayout.equals(recordClasses[i])) {
-                        if ((i == recordClasses.length - 1 && currentDelimiter.isEmpty()) || isDelimiterNotReached) {
+                        if ((i == recordClasses.length - 1 && currentDelimiter.isEmpty()) || isMatchedDelimiter) {
                             allRecordLayouts.add(parseRecord(record, recordClasses[i]));
                         }
                         else {
                             currentLayout = recordClasses[i + 1];
-                            currentDelimiter = getDelimiterValue(recordClasses[i + 1]);
-                            currentMatcher = getDelimiterMatcher(recordClasses[i + 1]);
-                            isDelimiterNotReached = matcherStrategy.select(currentMatcher)
-                                    .apply(record, currentDelimiter);
+                            currentDelimiter = getDelimiterValue(currentLayout);
+                            currentMatcher = getDelimiterMatcher(currentLayout);
+                            isMatchedDelimiter = matcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
                         }
                     }
                 }

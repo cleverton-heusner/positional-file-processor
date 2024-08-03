@@ -16,6 +16,8 @@ public class PositionalFileReaderTests extends PositionalFileTestsConfig {
 
     private static Transaction expectedTransaction1;
     private static Transaction expectedTransaction2;
+    private static TransactionWithStarsDelimiter expectedTransactionWithStarsDelimiter1;
+    private static TransactionWithStarsDelimiter expectedTransactionWithStarsDelimiter2;
 
     @BeforeAll
     public static void initialize() {
@@ -41,6 +43,27 @@ public class PositionalFileReaderTests extends PositionalFileTestsConfig {
         expectedTransaction2.setAuthorizationCode("B23456");
         expectedTransaction2.setCpf("11122233344");
 
+        expectedTransactionWithStarsDelimiter1 = new TransactionWithStarsDelimiter();
+        expectedTransactionWithStarsDelimiter1.setTransactionId("0000000001");
+        expectedTransactionWithStarsDelimiter1.setTransactionDate("20230701");
+        expectedTransactionWithStarsDelimiter1.setTransactionType("D");
+        expectedTransactionWithStarsDelimiter1.setAccountNumber("123456789012");
+        expectedTransactionWithStarsDelimiter1.setTransactionAmount(10000.0);
+        expectedTransactionWithStarsDelimiter1.setDescription("Pagamento de aluguel          ");
+        expectedTransactionWithStarsDelimiter1.setBeneficiaryName("João Silva          ");
+        expectedTransactionWithStarsDelimiter1.setAuthorizationCode("A12345");
+        expectedTransactionWithStarsDelimiter1.setCpf("11122233344");
+
+        expectedTransactionWithStarsDelimiter2 = new TransactionWithStarsDelimiter();
+        expectedTransactionWithStarsDelimiter2.setTransactionId("0000000002");
+        expectedTransactionWithStarsDelimiter2.setTransactionDate("20230701");
+        expectedTransactionWithStarsDelimiter2.setTransactionType("C");
+        expectedTransactionWithStarsDelimiter2.setAccountNumber("123456789012");
+        expectedTransactionWithStarsDelimiter2.setTransactionAmount(5000.0);
+        expectedTransactionWithStarsDelimiter2.setDescription("Depósito em dinheiro          ");
+        expectedTransactionWithStarsDelimiter2.setBeneficiaryName("Maria Souza         ");
+        expectedTransactionWithStarsDelimiter2.setAuthorizationCode("B23456");
+        expectedTransactionWithStarsDelimiter2.setCpf("11122233344");
     }
 
     @Test
@@ -122,6 +145,30 @@ public class PositionalFileReaderTests extends PositionalFileTestsConfig {
     }
 
     @Test
+    public void when_layoutAsBodyFooter_then_recordsReadInOrder() {
+
+        // Arrange
+        final Footer expectedFooter = new Footer("*** FOOTER ***");
+        final int expectedRecordsSize = 2;
+        final String inputFilePath = "src/test/resources/reader/transactions[0]_footer[1].txt";
+
+        // Act
+        final var records = new PositionalFileReader().readRecords(inputFilePath, TransactionWithStarsDelimiter.class,
+                Footer.class);
+        final var actualTransactions = (List<TransactionWithStarsDelimiter>) getSublist(records,
+                TransactionWithStarsDelimiter.class, 2);
+        final var actualFooter = records.get(Footer.class).get(0);
+
+        // Assert
+        assertThat(actualTransactions).containsExactly(
+                expectedTransactionWithStarsDelimiter1,
+                expectedTransactionWithStarsDelimiter2
+        );
+        assertThat(actualFooter).isEqualTo(expectedFooter);
+        assertThat(records).hasSize(expectedRecordsSize);
+    }
+
+    @Test
     public void when_layoutAsHeaderWithSize1_And_BodyWithUnknownSize_AndFooterWithSize1_then_recordsReadInOrder() {
 
         // Arrange
@@ -183,28 +230,6 @@ public class PositionalFileReaderTests extends PositionalFileTestsConfig {
         final var expectedHeader2 = new HeaderWithStarsDelimiter("*** HEADER ***");
         final var expectedHeader3 = new HeaderWithStarsDelimiter("**************");
 
-        final var expectedTransaction1 = new TransactionWithStarsDelimiter();
-        expectedTransaction1.setTransactionId("0000000001");
-        expectedTransaction1.setTransactionDate("20230701");
-        expectedTransaction1.setTransactionType("D");
-        expectedTransaction1.setAccountNumber("123456789012");
-        expectedTransaction1.setTransactionAmount(10000.0);
-        expectedTransaction1.setDescription("Pagamento de aluguel          ");
-        expectedTransaction1.setBeneficiaryName("João Silva          ");
-        expectedTransaction1.setAuthorizationCode("A12345");
-        expectedTransaction1.setCpf("11122233344");
-
-        final var expectedTransaction2 = new TransactionWithStarsDelimiter();
-        expectedTransaction2.setTransactionId("0000000002");
-        expectedTransaction2.setTransactionDate("20230701");
-        expectedTransaction2.setTransactionType("C");
-        expectedTransaction2.setAccountNumber("123456789012");
-        expectedTransaction2.setTransactionAmount(5000.0);
-        expectedTransaction2.setDescription("Depósito em dinheiro          ");
-        expectedTransaction2.setBeneficiaryName("Maria Souza         ");
-        expectedTransaction2.setAuthorizationCode("B23456");
-        expectedTransaction2.setCpf("11122233344");
-
         final var expectedFooter1 = new Footer("**************");
         final var expectedFooter2 = new Footer("*** FOOTER ***");
         final var expectedFooter3 = new Footer("**************");
@@ -222,12 +247,15 @@ public class PositionalFileReaderTests extends PositionalFileTestsConfig {
         );
 
         // Assert
-        final var actualHeader = (List<HeaderWithStarsDelimiter>) getSublist(records, HeaderWithStarsDelimiter.class, 3);
-        final var actualTransactions = (List<TransactionWithStarsDelimiter>) getSublist(records, TransactionWithStarsDelimiter.class, 2);
+        final var actualHeader = (List<HeaderWithStarsDelimiter>) getSublist(records, HeaderWithStarsDelimiter.class,
+                3);
+        final var actualTransactions = (List<TransactionWithStarsDelimiter>) getSublist(records,
+                TransactionWithStarsDelimiter.class, 2);
         final var actualFooter = (List<Footer>) getSublist(records, Footer.class, 3);
 
         assertThat(actualHeader).containsExactly(expectedHeader1, expectedHeader2, expectedHeader3);
-        assertThat(actualTransactions).containsExactly(expectedTransaction1, expectedTransaction2);
+        assertThat(actualTransactions).containsExactly(expectedTransactionWithStarsDelimiter1,
+                expectedTransactionWithStarsDelimiter2);
         assertThat(actualFooter).containsExactly(expectedFooter1, expectedFooter2, expectedFooter3);
         assertThat(records).hasSize(expectedRecordsSize);
     }
@@ -294,8 +322,8 @@ public class PositionalFileReaderTests extends PositionalFileTestsConfig {
 
         final int expectedRecordsSize = 6;
 
-        final String inputFilePath = "src/test/resources/reader/header[3]_header[1]_transactions[0]_header[1]_transactions[0]_" +
-                "footer[3].txt";
+        final String inputFilePath = "src/test/resources/reader/header[3]_header[1]_transactions[0]_header[1]_" +
+                "transactions[0]_footer[3].txt";
 
         // Act
         final Map<Class<?>, List<RecordLayout>> records = new PositionalFileReader().readRecords(
