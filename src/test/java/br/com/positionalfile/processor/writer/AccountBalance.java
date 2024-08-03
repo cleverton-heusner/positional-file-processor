@@ -1,8 +1,8 @@
 package br.com.positionalfile.processor.writer;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 
-public class AccountBalance implements Record {
+public class AccountBalance implements RecordLayout {
 
     @Order(1)
     private final String accountNumber;

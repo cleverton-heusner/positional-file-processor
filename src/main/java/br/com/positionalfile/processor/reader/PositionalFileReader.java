@@ -1,6 +1,6 @@
 package br.com.positionalfile.processor.reader;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -9,103 +9,102 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PositionalFileReader {
     private final StringParserStrategy stringParserStrategy;
+    private final MatcherStrategy matcherStrategy;
 
     public PositionalFileReader() {
         stringParserStrategy = new StringParserStrategy();
-    }
-
-    public List<Record> readRecords(final String inputFilePath, final Class<? extends Record> entityClass) {
-        try (final FileReader fileReader = new FileReader(inputFilePath)) {
-            return readRecords(fileReader, entityClass);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<Record> readRecords(final InputStream inputFileStream, final Class<? extends Record> entityClass) {
-        try (final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputFileStream))) {
-            return readRecords(inputStreamReader, entityClass);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<? extends Record> readRecords(final String inputFilePath,
-                                              final Class<? extends Record> headerRecordClass,
-                                              final Class<? extends Record> bodyRecordClass,
-                                              final Class<? extends Record> footerRecordClass) {
-
-        final int headerRecordSize = headerRecordClass.getAnnotation(Size.class).value();
-        final int footerRecordSize = footerRecordClass.getAnnotation(Size.class).value();
-        final List<String> records = readRecords(inputFilePath);
-        int bodyRecordSize = records.size() - footerRecordSize;
-
-        return mergeRecords(
-                parseRecords(records.subList(0, headerRecordSize), headerRecordClass),
-                parseRecords(records.subList(headerRecordSize, bodyRecordSize), bodyRecordClass),
-                parseRecords(records.subList(bodyRecordSize, bodyRecordSize + footerRecordSize), footerRecordClass)
-        );
-    }
-
-    public List<? extends Record> readRecords(final String inputFilePath,
-                                              final Class<? extends Record> headerRecordClass,
-                                              final Class<? extends Record> bodyRecordClass) {
-
-        final int headerRecordSize = headerRecordClass.getAnnotation(Size.class).value();
-        final List<String> records = readRecords(inputFilePath);
-
-        return mergeRecords(
-                parseRecords(records.subList(0, headerRecordSize), headerRecordClass),
-                parseRecords(records.subList(headerRecordSize, records.size()), bodyRecordClass)
-        );
-    }
-
-    private List<String> readRecords(final String inputFilePath) {
-        final List<String> records = new ArrayList<>();
-        try (final BufferedReader br = new BufferedReader(new FileReader(inputFilePath))) {
-            String currentRecord;
-            while ((currentRecord = br.readLine()) != null) {
-                records.add(currentRecord);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return records;
+        matcherStrategy = new MatcherStrategy();
     }
 
     @SafeVarargs
-    private List<? extends Record> mergeRecords(final List<? extends Record> ...records) {
-        return Stream.of(records).flatMap(Collection::stream).collect(Collectors.toList());
+    public final Map<Class<?>, List<RecordLayout>> readRecords(final InputStream inputStream,
+                                                               final Class<? extends RecordLayout>... recordClasses) {
+
+        try (final InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
+            return readRecords(inputStreamReader, recordClasses);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private List<Record> parseRecords(final List<String> records, final Class<? extends Record> recordClass) {
-        return records.stream().map(r -> parseRecord(r, recordClass)).collect(Collectors.toList());
+    @SafeVarargs
+    public final Map<Class<?>, List<RecordLayout>> readRecords(final String inputFilePath,
+                                                               final Class<? extends RecordLayout>... recordClasses) {
+
+        try (final FileReader fileReader = new FileReader(inputFilePath)) {
+            return readRecords(fileReader, recordClasses);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private Record parseRecord(final String record, final Class<? extends Record> recordClass) {
-        final Record typedRecord;
-        try {
-            typedRecord = recordClass.getDeclaredConstructor().newInstance();
-            for (final Field field : recordClass.getDeclaredFields()) {
-                if (field.isAnnotationPresent(FieldPosition.class)) {
-                    final Object fieldValue = retrieveFieldValue(field, record);
-                    setFieldValue(field, recordClass, typedRecord, fieldValue);
+    @SafeVarargs
+    private Map<Class<?>, List<RecordLayout>> readRecords(final Reader reader,
+                                                          final Class<? extends RecordLayout>... recordClasses) {
+
+
+        final List<RecordLayout> allRecordLayouts = new ArrayList<>();
+        try (final BufferedReader bufferedReader = new BufferedReader(reader)) {
+
+            Class<? extends RecordLayout> currentLayout = recordClasses[0];
+            String currentDelimiter = getDelimiterValue(recordClasses[0]);
+            Matcher currentMatcher = getDelimiterMatcher(recordClasses[0]);
+            String record;
+
+            while ((record = bufferedReader.readLine()) != null) {
+                boolean isDelimiterNotReached = matcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
+                for (int i = 0; i < recordClasses.length; i++) {
+                    if (currentLayout.equals(recordClasses[i])) {
+                        if ((i == recordClasses.length - 1 && currentDelimiter.isEmpty()) || isDelimiterNotReached) {
+                            allRecordLayouts.add(parseRecord(record, recordClasses[i]));
+                        }
+                        else {
+                            currentLayout = recordClasses[i + 1];
+                            currentDelimiter = getDelimiterValue(recordClasses[i + 1]);
+                            currentMatcher = getDelimiterMatcher(recordClasses[i + 1]);
+                            isDelimiterNotReached = matcherStrategy.select(currentMatcher)
+                                    .apply(record, currentDelimiter);
+                        }
+                    }
                 }
             }
-        } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 
-        return typedRecord;
+        return allRecordLayouts.stream().collect(Collectors.groupingBy(Object::getClass));
+    }
+
+    private String getDelimiterValue(final Class<? extends RecordLayout> recordClass) {
+        return recordClass.getAnnotation(Delimiter.class).value();
+    }
+
+    private Matcher getDelimiterMatcher(final Class<? extends RecordLayout> recordClass) {
+        return recordClass.getAnnotation(Delimiter.class).matcher();
+    }
+
+    private RecordLayout parseRecord(final String record, final Class<? extends RecordLayout> recordClass) {
+        final RecordLayout typedRecordLayout;
+        try {
+            typedRecordLayout = recordClass.getDeclaredConstructor().newInstance();
+            for (final Field field : recordClass.getDeclaredFields()) {
+                if (field.isAnnotationPresent(FieldPosition.class)) {
+                    final Object fieldValue = retrieveFieldValue(field, record);
+                    setFieldValue(field, recordClass, typedRecordLayout, fieldValue);
+                }
+            }
+        } catch (final InstantiationException | IllegalAccessException | InvocationTargetException |
+                       NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+
+        return typedRecordLayout;
     }
 
     private Object retrieveFieldValue(final Field field, final String record) {
@@ -115,7 +114,10 @@ public class PositionalFileReader {
         return stringParserStrategy.select(field.getType()).apply(fieldValue);
     }
 
-    private void setFieldValue(final Field field, final Class<? extends Record> entityClass, final Record entity, final Object fieldValue) {
+    private void setFieldValue(final Field field,
+                               final Class<? extends RecordLayout> entityClass,
+                               final RecordLayout entity,
+                               final Object fieldValue) {
         final Method setter;
         try {
             setter = new PropertyDescriptor(field.getName(), entityClass).getWriteMethod();
@@ -123,19 +125,5 @@ public class PositionalFileReader {
         } catch (IntrospectionException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private List<Record> readRecords(final Reader reader, final Class<? extends Record> entityClass) {
-        final List<Record> allRecords = new ArrayList<>();
-        try (final BufferedReader br = new BufferedReader(reader)) {
-            String record;
-            while ((record = br.readLine()) != null) {
-                allRecords.add(parseRecord(record, entityClass));
-            }
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return allRecords;
     }
 }

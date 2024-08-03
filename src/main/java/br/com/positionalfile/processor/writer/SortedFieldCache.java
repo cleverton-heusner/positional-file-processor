@@ -1,6 +1,6 @@
 package br.com.positionalfile.processor.writer;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -11,13 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SortedFieldCache {
 
-    private final Map<Class<? extends Record>, List<Field>> sortedFields;
+    private final Map<Class<? extends RecordLayout>, List<Field>> sortedFields;
 
     public SortedFieldCache() {
         this.sortedFields = new ConcurrentHashMap<>();
     }
 
-    public List<Field> get(final Class<? extends Record> clazz) {
+    public List<Field> get(final Class<? extends RecordLayout> clazz) {
         return sortedFields.computeIfAbsent(clazz, key -> {
             final Field[] fields = key.getDeclaredFields();
             Arrays.sort(fields, Comparator.comparingInt(field -> {

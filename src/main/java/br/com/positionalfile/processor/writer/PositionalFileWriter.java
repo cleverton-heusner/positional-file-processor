@@ -1,6 +1,6 @@
 package br.com.positionalfile.processor.writer;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 import br.com.positionalfile.formatter.Formatter;
 import br.com.positionalfile.formatter.FormatterStrategy;
 
@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class PositionalFileWriter<T extends Record> {
+public class PositionalFileWriter<T extends RecordLayout> {
 
     private static final int RECORD_OFFSET = 0;
 

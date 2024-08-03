@@ -1,6 +1,6 @@
 package br.com.positionalfile.processor.writer;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 import br.com.positionalfile.processor.Header;
 import br.com.positionalfile.processor.PositionalFileTestsConfig;
 import br.com.positionalfile.processor.reader.PixTransaction;
@@ -20,11 +20,13 @@ public class PositionalFileWriterTests extends PositionalFileTestsConfig {
         final String expectedAccountBalance1 = "09876543210955566677788500.0";
         final String expectedAccountBalance2 = "12345678901211122233344-5000.0";
 
-        final AccountBalance accountBalance1 = new AccountBalance("098765432109", "55566677788", 500.0);
-        final AccountBalance accountBalance2 = new AccountBalance("123456789012", "11122233344", -5000.0);
+        final AccountBalance accountBalance1 = new AccountBalance("098765432109", "55566677788",
+                500.0);
+        final AccountBalance accountBalance2 = new AccountBalance("123456789012", "11122233344",
+                -5000.0);
         final List<AccountBalance> balances = Arrays.asList(accountBalance1, accountBalance2);
 
-        final String outputFilePath = "src/test/resources/balances.txt";
+        final String outputFilePath = "src/test/resources/writer/balances.txt";
 
         // Act
         new PositionalFileWriter<AccountBalance>().writeRecords(balances, outputFilePath);
@@ -37,8 +39,10 @@ public class PositionalFileWriterTests extends PositionalFileTestsConfig {
     @Test
     public void when_differentEntityFromAccountBalance_then_recordsWroteInOrder() throws IOException {
         // Arrange
-        final String expectedPixTransaction1 = "chave-remetente-123chave-destinatario-45615075.020230701João SilvaMaria Oliveira";
-        final String expectedPixTransaction2 = "chave-remetente-123chave-destinatario-77720050.020230701José LuizBeatriz Duarte";
+        final String expectedPixTransaction1 = "chave-remetente-123chave-destinatario-45615075.020230701" +
+                "João SilvaMaria Oliveira";
+        final String expectedPixTransaction2 = "chave-remetente-123chave-destinatario-77720050.020230701" +
+                "José LuizBeatriz Duarte";
 
         final PixTransaction pixTransaction1 = new PixTransaction();
         pixTransaction1.setSenderKey("chave-remetente-123");
@@ -58,7 +62,7 @@ public class PositionalFileWriterTests extends PositionalFileTestsConfig {
 
         final List<PixTransaction> pixTransactions = Arrays.asList(pixTransaction1, pixTransaction2);
 
-        final String outputFilePath = "src/test/resources/sent_pixes_output.txt";
+        final String outputFilePath = "src/test/resources/pixes.txt";
 
         // Act
         new PositionalFileWriter<PixTransaction>().writeRecords(pixTransactions, outputFilePath);
@@ -72,11 +76,12 @@ public class PositionalFileWriterTests extends PositionalFileTestsConfig {
     public void when_differentContentsMixed_then_recordsWroteInOrder() throws IOException {
         // Arrange
         final String expectedHeader = "PIX TRANSACTIONS";
-        final String expectedPixTransaction1 = "chave-remetente-123chave-destinatario-45615075.020230701João SilvaMaria Oliveira";
-        final String expectedPixTransaction2 = "chave-remetente-123chave-destinatario-77720050.020230701José LuizBeatriz Duarte";
+        final String expectedPixTransaction1 = "chave-remetente-123chave-destinatario-45615075.020230701" +
+                "João SilvaMaria Oliveira";
+        final String expectedPixTransaction2 = "chave-remetente-123chave-destinatario-77720050.020230701" +
+                "José LuizBeatriz Duarte";
 
-        final Header header = new Header();
-        header.setTitle("PIX TRANSACTIONS");
+        final Header header = new Header("PIX TRANSACTIONS");
 
         final PixTransaction pixTransaction1 = new PixTransaction();
         pixTransaction1.setSenderKey("chave-remetente-123");
@@ -94,16 +99,20 @@ public class PositionalFileWriterTests extends PositionalFileTestsConfig {
         pixTransaction2.setSenderName("José Luiz");
         pixTransaction2.setRecipientName("Beatriz Duarte");
 
-        final List<Record> content = List.of(header, pixTransaction1, pixTransaction2);
+        final List<RecordLayout> content = List.of(header, pixTransaction1, pixTransaction2);
 
-        final String outputFilePath = "src/test/resources/sent_pixes_output.txt";
+        final String outputFilePath = "src/test/resources/pixes.txt";
 
         // Act
         new PositionalFileWriter<>().writeRecords(content, outputFilePath);
 
         // Assert
         final List<String> actualPixTransactions = readRecords(outputFilePath);
-        Assertions.assertThat(actualPixTransactions).containsExactly(expectedHeader, expectedPixTransaction1, expectedPixTransaction2);
+        Assertions.assertThat(actualPixTransactions).containsExactly(
+                expectedHeader,
+                expectedPixTransaction1,
+                expectedPixTransaction2
+        );
     }
 
     @Test
@@ -117,7 +126,7 @@ public class PositionalFileWriterTests extends PositionalFileTestsConfig {
 
         final String expectedTransfer = "       sourceAccountdestinationAccount**1000.020230701";
 
-        final String outputFilePath = "src/test/resources/transfers.txt";
+        final String outputFilePath = "src/test/resources/writer/transfers.txt";
 
         // Act
         new PositionalFileWriter<>().writeRecords(List.of(transfer), outputFilePath);
@@ -138,7 +147,7 @@ public class PositionalFileWriterTests extends PositionalFileTestsConfig {
 
         final String expectedTransfer = "sourceAccountdestinationAccount+000000000000001000.0020230701";
 
-        final String outputFilePath = "src/test/resources/transfers.txt";
+        final String outputFilePath = "src/test/resources/writer/transfers.txt";
 
         // Act
         new PositionalFileWriter<>().writeRecords(List.of(transfer), outputFilePath);

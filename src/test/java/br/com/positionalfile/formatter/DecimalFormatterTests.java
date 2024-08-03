@@ -32,6 +32,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_positiveDecimal_and_signParameterAsTrue_then_decimalWithSign() {
+
         // Arrange
         final String expectedFormattedDecimal = "+1000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(SignedDecimalField.class);
@@ -46,6 +47,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_negativeDecimal_and_signParameterAsTrue_then_decimalWithSign() {
+
         // Arrange
         final String expectedFormattedDecimal = "-1000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(SignedDecimalField.class);
@@ -60,6 +62,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_positiveDecimal_and_signParameterAsFalse_then_decimalWithoutSign() {
+
         // Arrange
         final String expectedFormattedDecimal = "1000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(UnsignedDecimalField.class);
@@ -74,6 +77,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_negativeDecimal_and_signParameterAsFalse_then_decimalWithoutSign() {
+
         // Arrange
         final String expectedFormattedDecimal = "1000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(UnsignedDecimalField.class);
@@ -88,6 +92,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_maxSizeParameter_then_decimalAlignedToRightWithLeadingSpaces() {
+
         // Arrange
         final String expectedFormattedDecimal = "              1000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(DecimalFieldWithLeadingSpaces.class);
@@ -102,6 +107,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_maxSizeParameter_then_decimalAlignedToRightWithLeadingCustomPaddingChars() {
+
         // Arrange
         final String expectedFormattedDecimal = "000000000000001000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(DecimalFieldWithLeadingCustomPaddingChars.class);
@@ -116,6 +122,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_maxSizeParameter_then_decimalAlignedToLeftWithTrailingSpaces() {
+
         // Arrange
         final String expectedFormattedDecimal = "1000.00              ";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(DecimalFieldWithTrailingSpaces.class);
@@ -130,6 +137,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_positiveDecimal_and_signParameterAsTrue_and_maxSizeParameter_then_decimalAlignedToRightWithLeadingCustomPaddingChars() {
+
         // Arrange
         final String expectedFormattedDecimal = "+000000000000001000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(SignedDecimalFieldWithLeadingCustomPaddingChars.class);
@@ -144,6 +152,7 @@ public class DecimalFormatterTests {
 
     @Test
     public void when_positiveDecimal_and_signParameterAsTrue_and_maxSizeParameter_then_decimalAlignedToRightWithLeadingSpaces() {
+
         // Arrange
         final String expectedFormattedDecimal = "              +1000.00";
         Decimal decimalAnnotation = getDecimalAnnotationFromField(SignedDecimalFieldWithLeadingSpaces.class);

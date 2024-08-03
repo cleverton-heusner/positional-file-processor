@@ -1,10 +1,10 @@
 package br.com.positionalfile.processor.writer;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 import br.com.positionalfile.formatter.Alignment;
 import br.com.positionalfile.formatter.text.Text;
 
-public class Transfer implements Record {
+public class Transfer implements RecordLayout {
 
     @Order(1)
     @Text(maxSize = 20)

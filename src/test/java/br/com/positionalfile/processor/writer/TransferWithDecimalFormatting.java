@@ -1,11 +1,11 @@
 package br.com.positionalfile.processor.writer;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 import br.com.positionalfile.formatter.decimal.Decimal;
 
 import java.math.BigDecimal;
 
-public class TransferWithDecimalFormatting implements Record {
+public class TransferWithDecimalFormatting implements RecordLayout {
 
     @Order(1)
     private String sourceAccount;

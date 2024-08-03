@@ -1,11 +1,12 @@
 package br.com.positionalfile.processor.reader;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 import br.com.positionalfile.processor.writer.Order;
 
 import java.util.Objects;
 
-public class PixTransaction implements Record {
+@Delimiter
+public class PixTransaction implements RecordLayout {
 
     @FieldPosition(begin = 0, end = 19)
     @Order(1)

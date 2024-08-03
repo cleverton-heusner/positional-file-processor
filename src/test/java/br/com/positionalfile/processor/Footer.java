@@ -1,13 +1,19 @@
 package br.com.positionalfile.processor;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
+import br.com.positionalfile.processor.reader.Delimiter;
 import br.com.positionalfile.processor.reader.FieldPosition;
-import br.com.positionalfile.processor.reader.Size;
 
 import java.util.Objects;
 
-@Size(1)
-public class Footer implements Record {
+@Delimiter
+public class Footer implements RecordLayout {
+
+    public Footer() {}
+
+    public Footer(final String title) {
+        this.title = title;
+    }
 
     @FieldPosition(begin = 0, end = 14)
     private String title;

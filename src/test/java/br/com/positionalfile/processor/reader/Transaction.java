@@ -1,10 +1,11 @@
 package br.com.positionalfile.processor.reader;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
 
 import java.util.Objects;
 
-public class Transaction implements Record {
+@Delimiter
+public class Transaction implements RecordLayout {
 
     @FieldPosition(begin = 0, end = 10)
     private String transactionId;

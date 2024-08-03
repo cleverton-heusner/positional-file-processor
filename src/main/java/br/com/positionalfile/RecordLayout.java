@@ -1,3 +1,3 @@
 package br.com.positionalfile;
 
-public interface Record {}
+public interface RecordLayout {}

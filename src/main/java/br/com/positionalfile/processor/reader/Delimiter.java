@@ -4,6 +4,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Size {
-    int value();
+public @interface Delimiter {
+    String value() default "";
+
+    Matcher matcher() default Matcher.EQUALS;
 }

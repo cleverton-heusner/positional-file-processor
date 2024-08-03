@@ -23,6 +23,7 @@ public class TextFormatterTests {
 
     @Test
     public void when_textWithLargerMaxSize_then_textWithLeadingSpaces() {
+
         // Arrange
         final String expectedFormattedText = "     myAccountNumber";
         Text textAnnotation = getTextAnnotationFromField(TextFieldWithLeadingSpaces.class);
@@ -37,6 +38,7 @@ public class TextFormatterTests {
 
     @Test
     public void when_textWithLargerMaxSize_then_textWithTrailingSpaces() {
+
         // Arrange
         final String expectedFormattedText = "myAccountNumber     ";
         Text textAnnotation = getTextAnnotationFromField(TextFieldWithTrailingSpaces.class);
@@ -51,6 +53,7 @@ public class TextFormatterTests {
 
     @Test
     public void when_textWithLargerMaxSize_then_textWithLeadingCustomPaddingChars() {
+
         // Arrange
         final String expectedFormattedText = "_____myAccountNumber";
         Text textAnnotation = getTextAnnotationFromField(TextFieldWithLeadingCustomPaddingChars.class);
@@ -65,6 +68,7 @@ public class TextFormatterTests {
 
     @Test
     public void when_textWithLargerMaxSize_then_textWithTrailingCustomPaddingChars() {
+
         // Arrange
         final String expectedFormattedText = "myAccountNumber_____";
         Text textAnnotation = getTextAnnotationFromField(TextFieldWithTrailingCustomPaddingChars.class);

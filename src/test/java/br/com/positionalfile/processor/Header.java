@@ -1,13 +1,20 @@
 package br.com.positionalfile.processor;
 
-import br.com.positionalfile.Record;
+import br.com.positionalfile.RecordLayout;
+import br.com.positionalfile.processor.reader.Delimiter;
 import br.com.positionalfile.processor.reader.FieldPosition;
-import br.com.positionalfile.processor.reader.Size;
+import br.com.positionalfile.processor.reader.Matcher;
 
 import java.util.Objects;
 
-@Size(1)
-public class Header implements Record {
+@Delimiter(matcher = Matcher.START_WITH, value = "***")
+public class Header implements RecordLayout {
+
+    public Header() {}
+
+    public Header(final String title) {
+        this.title = title;
+    }
 
     @FieldPosition(begin = 0, end = 14)
     private String title;
