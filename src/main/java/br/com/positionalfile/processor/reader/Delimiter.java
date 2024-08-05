@@ -7,5 +7,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Delimiter {
     String value() default "";
 
-    Matcher matcher() default Matcher.EQUALS;
+    Matcher matcher() default Matcher.EQUALS_TO;
 }

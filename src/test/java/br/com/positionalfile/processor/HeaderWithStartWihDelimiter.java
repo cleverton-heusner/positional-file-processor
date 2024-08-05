@@ -7,12 +7,12 @@ import br.com.positionalfile.processor.reader.Matcher;
 
 import java.util.Objects;
 
-@Delimiter(value = "***", matcher = Matcher.START_WITH)
-public class HeaderWithStarsDelimiter implements RecordLayout {
+@Delimiter(matcher = Matcher.START_WITH, value = "***")
+public class HeaderWithStartWihDelimiter implements RecordLayout {
 
-    public HeaderWithStarsDelimiter() {}
+    public HeaderWithStartWihDelimiter() {}
 
-    public HeaderWithStarsDelimiter(final String title) {
+    public HeaderWithStartWihDelimiter(final String title) {
         this.title = title;
     }
 
@@ -23,7 +23,7 @@ public class HeaderWithStarsDelimiter implements RecordLayout {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        HeaderWithStarsDelimiter header = (HeaderWithStarsDelimiter) o;
+        HeaderWithStartWihDelimiter header = (HeaderWithStartWihDelimiter) o;
         return Objects.equals(title, header.title);
     }
 

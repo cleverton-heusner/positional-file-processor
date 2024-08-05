@@ -4,8 +4,8 @@ import br.com.positionalfile.RecordLayout;
 
 import java.util.Objects;
 
-@Delimiter(value = "FOOTER", matcher = Matcher.NOT_EQUALS)
-public class TransactionWithFooterDelimiter implements RecordLayout {
+@Delimiter(matcher = Matcher.NOT_START_WITH, value = "***")
+public class TransactionWithNotStartWithDelimiter implements RecordLayout {
 
     @FieldPosition(begin = 0, end = 10)
     private String transactionId;
@@ -30,7 +30,7 @@ public class TransactionWithFooterDelimiter implements RecordLayout {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TransactionWithFooterDelimiter that = (TransactionWithFooterDelimiter) o;
+        TransactionWithNotStartWithDelimiter that = (TransactionWithNotStartWithDelimiter) o;
         return Objects.equals(transactionId, that.transactionId) && Objects.equals(transactionDate, that.transactionDate) && Objects.equals(transactionType, that.transactionType) && Objects.equals(accountNumber, that.accountNumber) && Objects.equals(transactionAmount, that.transactionAmount) && Objects.equals(description, that.description) && Objects.equals(beneficiaryName, that.beneficiaryName) && Objects.equals(authorizationCode, that.authorizationCode) && Objects.equals(cpf, that.cpf);
     }
 

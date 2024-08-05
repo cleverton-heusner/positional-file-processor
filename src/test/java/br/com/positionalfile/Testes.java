@@ -7,6 +7,12 @@ import java.util.Locale;
 public class Testes {
 
     public static void main(String[] args) {
+//        String input = "example";
+//        String regex = "^e+";
+//        Pattern pattern = Pattern.compile(regex);
+//        Matcher matcher = pattern.matcher(input);
+//        System.out.println(matcher.find());
+
         // MONETARIO
         // input: BIGDECIMAL
         // zeros/espacos/whatever a esquerda

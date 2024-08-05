@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 
 public class PositionalFileReader {
     private final StringParserStrategy stringParserStrategy;
-    private final MatcherStrategy matcherStrategy;
+    private final DelimiterMatcherStrategy delimiterMatcherStrategy;
 
     public PositionalFileReader() {
         stringParserStrategy = new StringParserStrategy();
-        matcherStrategy = new MatcherStrategy();
+        delimiterMatcherStrategy = new DelimiterMatcherStrategy();
     }
 
     @SafeVarargs
@@ -56,7 +56,7 @@ public class PositionalFileReader {
             String record;
 
             while ((record = bufferedReader.readLine()) != null) {
-                boolean isMatchedDelimiter = matcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
+                boolean isMatchedDelimiter = delimiterMatcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
                 for (int i = 0; i < recordClasses.length; i++) {
                     if (currentLayout.equals(recordClasses[i])) {
                         if ((i == recordClasses.length - 1 && currentDelimiter.isEmpty()) || isMatchedDelimiter) {
@@ -66,7 +66,7 @@ public class PositionalFileReader {
                             currentLayout = recordClasses[i + 1];
                             currentDelimiter = getDelimiterValue(currentLayout);
                             currentMatcher = getDelimiterMatcher(currentLayout);
-                            isMatchedDelimiter = matcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
+                            isMatchedDelimiter = delimiterMatcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
                         }
                     }
                 }
