@@ -50,23 +50,21 @@ public class PositionalFileReader {
 
         final List<RecordLayout> allRecordLayouts = new ArrayList<>();
         try (final BufferedReader bufferedReader = new BufferedReader(reader)) {
-            Class<? extends RecordLayout> currentLayout = recordClasses[0];
-            String currentDelimiter = getDelimiterValue(recordClasses[0]);
-            Matcher currentMatcher = getDelimiterMatcher(recordClasses[0]);
+            final DelimiterWrapper delimiter = new DelimiterWrapper(recordClasses[0]);
             String record;
 
             while ((record = bufferedReader.readLine()) != null) {
-                boolean isMatchedDelimiter = delimiterMatcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
+                boolean isMatchedDelimiter = delimiterMatcherStrategy.select(delimiter.getMatcher())
+                        .apply(record, delimiter.getValue());
                 for (int i = 0; i < recordClasses.length; i++) {
-                    if (currentLayout.equals(recordClasses[i])) {
-                        if ((i == recordClasses.length - 1 && currentDelimiter.isEmpty()) || isMatchedDelimiter) {
+                    if (delimiter.getRecordClass().equals(recordClasses[i])) {
+                        if ((i == recordClasses.length - 1 && delimiter.hasEmptyValue()) || isMatchedDelimiter) {
                             allRecordLayouts.add(parseRecord(record, recordClasses[i]));
                         }
                         else {
-                            currentLayout = recordClasses[i + 1];
-                            currentDelimiter = getDelimiterValue(currentLayout);
-                            currentMatcher = getDelimiterMatcher(currentLayout);
-                            isMatchedDelimiter = delimiterMatcherStrategy.select(currentMatcher).apply(record, currentDelimiter);
+                            delimiter.setRecordClass(recordClasses[i + 1]);
+                            isMatchedDelimiter = delimiterMatcherStrategy.select(delimiter.getMatcher())
+                                    .apply(record, delimiter.getValue());
                         }
                     }
                 }
@@ -76,14 +74,6 @@ public class PositionalFileReader {
         }
 
         return allRecordLayouts.stream().collect(Collectors.groupingBy(Object::getClass));
-    }
-
-    private String getDelimiterValue(final Class<? extends RecordLayout> recordClass) {
-        return recordClass.getAnnotation(Delimiter.class).value();
-    }
-
-    private Matcher getDelimiterMatcher(final Class<? extends RecordLayout> recordClass) {
-        return recordClass.getAnnotation(Delimiter.class).matcher();
     }
 
     private RecordLayout parseRecord(final String record, final Class<? extends RecordLayout> recordClass) {
