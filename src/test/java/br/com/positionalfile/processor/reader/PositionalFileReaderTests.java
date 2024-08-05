@@ -493,4 +493,24 @@ public class PositionalFileReaderTests extends PositionalFileTestsConfig {
         assertThat(actualFooter).isEqualTo(expectedFooter);
         assertThat(records).hasSize(expectedRecordsSize);
     }
+
+    @Test
+    public void when_delimiterAsContains_then_recordsReadInOrder() {
+
+        // Arrange
+        final HeaderWithContainsDelimiter expectedHeader = new HeaderWithContainsDelimiter("*** HEADER ***");
+        final int expectedRecordsSize = 2;
+        final String inputFilePath = "src/test/resources/reader/header[1]_transactions[0].txt";
+
+        // Act
+        final var records = new PositionalFileReader().readRecords(inputFilePath, HeaderWithContainsDelimiter.class,
+                Transaction.class);
+        final var actualTransactions = (List<Transaction>) getSublist(records, Transaction.class, 2);
+        final var actualHeader = records.get(HeaderWithContainsDelimiter.class).get(0);
+
+        // Assert
+        assertThat(actualHeader).isEqualTo(expectedHeader);
+        assertThat(actualTransactions).containsExactly(expectedTransaction1, expectedTransaction2);
+        assertThat(records).hasSize(expectedRecordsSize);
+    }
 }

@@ -9,5 +9,6 @@ public enum Matcher {
     NOT_ENDS_WITH,
     SIZE_EQUALS_TO,
     SIZE_BIGGER_THAN,
-    SIZE_SMALLER_THAN;
+    SIZE_SMALLER_THAN,
+    CONTAINS;
 }

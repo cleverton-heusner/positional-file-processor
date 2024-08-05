@@ -32,6 +32,9 @@ public class DelimiterMatcherStrategy {
         else if (Matcher.SIZE_SMALLER_THAN.equals(delimiterMatcher)) {
             return (value, delimiterSize) -> value.length() < Integer.parseInt(delimiterSize);
         }
+        else if (Matcher.CONTAINS.equals(delimiterMatcher)) {
+            return String::contains;
+        }
 
         return null;
     }
